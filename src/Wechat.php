@@ -4,7 +4,6 @@ namespace Wechat;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class Wechat
 {
@@ -19,7 +18,7 @@ class Wechat
      * @param string $secret secret
      * @param string|false|null $token token|禁用自动获取token|自动获取token
      */
-    public function __construct($appid, $secret, $token)
+    public function __construct($appid, $secret, $token = null)
     {
         $this->appid = $appid;
         $this->secret = $secret;
@@ -36,10 +35,11 @@ class Wechat
 
     /**
      * 获取用户code并跳转至redirect_uri
-     * 参数列表
-     *  模块/控制器/方法   $redirect_uri   [description]
-     *  boolean         $focused        [用户是否关注]
-     *  string          $state          [额外参数]
+     * @param string $redirectUri 跳转uri
+     * @param boolean $scope 是否获取用户详细信息
+     * @param mixed $state 附加参数
+     * 
+     * @return string $url 生成的url
      */
     function code($redirectUri, $scope = true, $state = '')
     {
@@ -58,17 +58,10 @@ class Wechat
 
     /**
      * 获取access_token、openid
-     * 参数列表
-     *  string          $code           [微信登录第一步获取的code]
-     * 返回结果
-     *  array(
-     *      string      access_token
-     *      string      openid
-     *  )
-     *  array(
-     *      int     errcode     [错误代码]
-     *      string              [错误信息]
-     *  )
+     * 
+     * @param string $code 用户code
+     * 
+     * @return array $rst 用户信息
      */
     function base($code)
     {
