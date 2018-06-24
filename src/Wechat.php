@@ -23,13 +23,13 @@ class Wechat
         $this->appid = $appid;
         $this->secret = $secret;
         $this->token = $token;
-        if (is_null($token)) {
-            $this->token = $this->token();
-        }
         if (empty(self::$client)) {
             self::$client = new Client(array(
                 'timeout' => 2.0
             ));
+        }
+        if (is_null($token)) {
+            $this->token = $this->token();
         }
     }
 
