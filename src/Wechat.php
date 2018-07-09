@@ -47,7 +47,7 @@ class Wechat
         $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?%s#wechat_redirect';
         $params = array(
             'appid' => $this->appid,
-            'redirect_uri' => urlencode($redirectUri),
+            'redirect_uri' => $redirectUri,
             'response_type' => 'code',
             'scope' => $scope,
             'state' => $state,
