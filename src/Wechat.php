@@ -41,7 +41,7 @@ class Wechat
      * 
      * @return string $url 生成的url
      */
-    function code($redirectUri, $scope = true, $state = '')
+    public function code($redirectUri, $scope = true, $state = '')
     {
         $scope = $scope ? 'snsapi_userinfo' : 'snsapi_base';
         $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?%s#wechat_redirect';
@@ -63,7 +63,7 @@ class Wechat
      * 
      * @return array $rst 用户信息
      */
-    function base($code)
+    public function base($code)
     {
         $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?%s';
         $params = array(
@@ -88,7 +88,7 @@ class Wechat
      * @param  string $openid       用户openid
      * @return boolean              是否关注
      */
-    function sub($accessToken, $openid)
+    public function sub($accessToken, $openid)
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/user/info?%s';
         $params = array(
@@ -117,7 +117,7 @@ class Wechat
      * 
      * @return array $array
      */
-    function info($accessToken, $openid)
+    public function info($accessToken, $openid)
     {
         $url = 'https://api.weixin.qq.com/sns/userinfo?%s';
         $params = array(
@@ -139,7 +139,7 @@ class Wechat
      * 获取access_token
      * 
      */
-    function token()
+    public function token()
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/token?%s';
         $params = array(
@@ -163,13 +163,41 @@ class Wechat
     }
     
     /**
-     * 发送模板消息
-     * 参数列表
-     *  string           $openid        [用户openid]
-     *  string           $token         [服务器access_token]
-     *  string           $template_id   [模板id]
-     *  string           $detail_url    [点击打开的url]
-     *  array            $data          [发送的信息]
+     * 发送消息
+     * @param string $openid openid
+     * @param string template_id  模板id
+     * @param array $data 显示数据
+     * @param string|null $url 跳转链接
+     * @param array|null $miniprogram 小程序数据
+     */
+    public function tplMsg($openid, $template_id, $data, $url = null, $miniprogram = null)
+    {
+        $uri = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $this->token;
+        $request = new Request(
+            'POST',
+            $uri
+        );
+        $params = array(
+            'template_id' => $template_id,
+            'touser' => $openid,
+            'data' => $data,
+        );
+        if ( ! is_null($url)) {
+            $params['url'] = $url;
+        }
+        if ( ! is_null($miniprogram)) {
+            $params['miniprogram'] = $miniprogram;
+        }
+        $params = json_encode($params);
+        $response = self::$client->send($request, array('query' => $params));
+        $code = $response->getStatusCode();
+        if ($code != '200') {
+            throw new \Exception('服务不可用');
+        }
+        $rst = json_decode($response->getBody()->getContents(), true);
+        return $rst;
+    }
+    /**
         data => array(
             "first"=> array(
                 "value"=>"您已为该微信绑定学号",
@@ -189,25 +217,5 @@ class Wechat
             )
         )
      */
-    function teminfo($openid, $token, $template_id, $detail_url, $data)
-    {
-        $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $token;
-        $data = array(
-            'touser'      => $openid,
-            'template_id' => $template_id,
-            'url'         => $detail_url,
-            'data'        => $data
-        );
-        $cookie = '';
-        $result = json_decode(curl($url, $cookie, json_encode($data)), true);
-        if($result['errcode'] === 0)
-        {
-            return true;
-        }
-        else
-        {
-            return $result;
-        }
-    }
 
 }
