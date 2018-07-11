@@ -143,7 +143,7 @@ class Wechat
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/token?%s';
         $params = array(
-            'grant_type' => 'grant_type',
+            'grant_type' => 'client_credential',
             'appid' => $this->appid,
             'secret' => $this->secret,
         );
