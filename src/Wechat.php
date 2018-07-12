@@ -30,6 +30,8 @@ class Wechat
         }
         if (is_null($token)) {
             $this->token = $this->token();
+        } else {
+            $this->token = $token;
         }
     }
 
