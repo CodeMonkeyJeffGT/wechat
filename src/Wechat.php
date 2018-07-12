@@ -3,7 +3,6 @@ namespace Wechat;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 class Wechat
 {
@@ -174,7 +173,7 @@ class Wechat
      */
     public function tplMsg($openid, $template_id, $data, $url = null, $miniprogram = null)
     {
-        $uri = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $this->token;
+        $uri = 'https://api.weixin.qq.com/cgi-bin/message/template/send';
         $request = new Request(
             'POST',
             $uri
@@ -190,8 +189,12 @@ class Wechat
         if ( ! is_null($miniprogram)) {
             $params['miniprogram'] = $miniprogram;
         }
-        $params = json_encode($params);
-        $response = self::$client->send($request, array('query' => $params));
+        $response = self::$client->send($request, array(
+            'json' => $params,
+            'query' => array(
+                'access_token' => $this->token,
+            ),
+        ));
         $code = $response->getStatusCode();
         if ($code != '200') {
             throw new \Exception('服务不可用');
